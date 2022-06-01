@@ -1,0 +1,132 @@
+---
+title: "Assignment III"
+author: "Dana Jensen, Teemu, Thea Andersen, Sofie Therkelsen, Anja Tørnqvist"
+date: "February 17, 2017"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# setting working directory and loading data, packages etc.
+setwd("C:/Users/Dana/Desktop/METHODS II/CLASS EXERCIZES")
+library(psych)
+library(ggplot2)
+parametres = read.table("parametres.txt", header = FALSE)
+fmri<-as.matrix(read.csv("aud_fmri_data37.csv", header=FALSE))
+fmri2<-ts(fmri)
+fmrides<-as.matrix(read.csv("aud_fmri_design.csv", header=FALSE))
+fmrides2<-ts(fmrides)
+```
+
+Import the realignment parameters into R.
+3.a. Make a lineplot of the realignment parameters in R.
+```{r}
+
+# making a dataframe
+parametres$Session = c(1:400)
+lineplotdata <- stack(parametres, c(V1, V2, V3, V4, V5, V6)) 
+lineplotdata$session = c(1:400, 1:400, 1:400, 1:400, 1:400, 1:400)
+
+# lineplot of the realignment parameters
+lineplot <- ggplot(lineplotdata, aes(session, values, group = ind, colour = ind)) + geom_line()
+
+#lineplot of realignment parametres
+lineplot
+
+```
+3.b. How far has the participant moved for each dimension during the experiment (Hint: use "apply()" to
+run a function across columns)?
+```{r}
+
+# finding the range of how far the participant moved
+# 2 indicates rows, a 1 would indicate columns
+ranges = apply(parametres, 2, range)
+ranges1 = ranges[1,-7] - ranges[2,-7]
+
+# length of movement
+print(round(ranges1, 2))
+
+# sum of dimensions 1:3 vs 4:6
+sum(ranges1[1:3])
+sum(ranges1[4:6])
+
+```
+There was more movement in the first three dimensions compared to the last three dimensions, -1.47 vs. -0.02.
+
+3.c. Are any of the realignment parameters significantly correlated with the fMRI model (same model as
+used in exercise 2)?
+```{r}
+
+# converting to dataframe
+fmrides<-data.frame(fmrides)
+
+# testing for correlation
+psych::corr.test(parametres,fmrides)
+
+```
+V1, the first story, and V5, one of the dimensions of the fMRI, are significantly correlated: r= 0.17, p<.05
+
+
+Remove linear effects of time from the realignment parameters (hint: fit a line and use residuals).
+```{r}
+
+# fitting a linear model to the data to find residuals
+model = lm(values ~ session, lineplotdata)
+summary(model)
+
+# extracting residuals for each dimension
+r1 = model$residuals[lineplotdata$ind == "V1"]
+r2 = model$residuals[lineplotdata$ind == "V2"]
+r3 = model$residuals[lineplotdata$ind == "V3"]
+r4 = model$residuals[lineplotdata$ind == "V4"]
+r5 = model$residuals[lineplotdata$ind == "V5"]
+r6 = model$residuals[lineplotdata$ind == "V6"]
+
+# saving into dataframe
+residuals1 = data.frame(r1,r2,r3,r4,r5,r6)
+
+```
+
+
+3.d. Make a lineplot of the realignment parameters with time removed.
+```{r}
+
+# lineplot of residuals
+lineplot2data <- stack(residuals1, c(r1,r2,r3,r4,r5,r6))
+lineplot2data$session = c(1:400, 1:400, 1:400, 1:400, 1:400, 1:400)
+lineplot2 <- ggplot(lineplot2data, aes(session, values, group = ind, colour = ind)) + geom_line()
+
+# lineplot parametres with time removed
+lineplot2
+
+```
+3.e. Make a lineplot including only the first realignment parameter before and after removal.
+```{r}
+
+# defining before and after residual removal
+After = model$residuals[lineplotdata$ind == "V1"]
+Before = parametres[,1]
+
+# constructing a lineplot
+lineplot3data = data.frame(Before, After)
+lineplot3data <- stack(lineplot3data, c(Before, After))
+lineplot3data$session = c(1:400)
+lineplot3 <- ggplot(lineplot3data, aes(session, values, group = ind, colour = ind)) +labs(title = "First realignment parameter, before and after removal of the effect of time", x= "Time", y = "Value", colour = "") + geom_line()
+
+# lineplot before and after removal of time effect
+lineplot3
+
+```
+3.f. Are the realignment parameters (corrected for effects of time) now correlated with the fMRI model?
+```{r}
+
+# testing for correlation
+corr.test(residuals1, fmrides)
+
+```
+No, none of the realignment parametres are correlated with the fMRI model, p=1

@@ -1,0 +1,175 @@
+---
+title: "Assignment II"
+author: "Dana Jensen, Sofie, Thea, Anja, Teemu"
+date: "February 10, 2017"
+output:
+  word_document: default
+  pdf_document: default
+---
+
+```{}
+setwd("C:/Users/Dana/Desktop/METHODS II/CLASS EXERCIZES")
+fmri<-as.matrix(read.csv("aud_fmri_data37.csv", header=FALSE))
+fmri2<-ts(fmri)
+fmrides<-as.matrix(read.csv("aud_fmri_design.csv", header=FALSE))
+fmrides2<-ts(fmrides)
+library("tidyr")
+library("plyr")
+library("ggplot2")
+
+```
+Initial Figures:
+1) Make two figures:
+a. A figure with lineplots of the data from all participants in one figure. Note how much the baseline signal can vary between participants
+b. A figure lineplots with the model covariates
+
+```{}
+# lineplot from all participants
+matplot(fmri, type = "l")
+
+# lineplot with model covariates
+matplot(fmrides, type = "l")
+```
+- Notice: baselines can vary. Example: one particiant's baseline is just above the 600 on the y axis, where another participant's is verging around the 950 mark.
+
+Investigating model:
+2)How many stories did the participants listen to in each condition?
+- There were two, one represented with the black line and one represented by the red line
+
+3) Are the two model covariates correlated?
+
+```{}
+fmrides<-data.frame(fmrides)
+cor.test(fmrides$V1,fmrides$V2)
+-0.54^2
+
+round(2.2e-16, 4)
+
+```
+
+- Yes, the covariates are correlated r(398)= -0.5428111, p < .01
+
+4)Please report the percentage of shared variance in the two covariates
+
+```{}
+# We square the r value: 
+0.54^2
+```
+
+- R^2 = 0.29. Which means, that the covariates share 29% of variance 
+
+Analysis:
+5)Pick one participant's data set
+- We picked participant 1 (V1)
+
+a. Fit the model as it is, including intercept 
+```{}
+fmri<-data.frame(fmri)
+model1<- lm(fmri$V1 ~ fmrides$V1 + fmrides$V2)
+summary(model1)
+```
+
+b. Fit the model as it is, exluding intercept
+```{}
+model2<- lm(fmri$V1 ~ fmrides$V1 + fmrides$V2 - 1)
+summary(model2)
+```
+
+c. Fit only the first covariate as a model
+```{}
+model3<- lm(fmri$V1 ~ fmrides$V1)
+summary(model3)
+```
+
+d. Fit only the second covariate as a model. 
+The residules represent the variance left when fitting a model. They are thus data that have been 'cleaned' from the variance explained by the model. We can use those 'cleaned' data to fit another model on. This is similar to using a type III sum of squares approach to your statistics. 
+```{}
+model4<- lm(fmri$V1 ~ fmrides$V2)
+summary(model4)
+```
+
+e. Fit the second covariate to the residules from analysis 5)c. the first covariate only  
+```{}
+model5<-lm(model3$residuals ~ fmrides$V2)
+summary(model5)
+```
+
+f. fit the first covariate to the residules from 5)d. the second covariate only 
+```{}
+model6<-lm(model4$residuals ~ fmrides$V1)
+summary(model6)
+```
+
+g. what is the difference between the estimated coefficients from these models? Does it matter how you model your data?
+```{}
+# estimate coefficients:
+# model1 V1 = 9.6 - V2 = 8.9
+# model2 V1 = 9.6 - V2 = 8.9
+# model3 V1 = 4.7
+# model4 V2 = 3.7
+# model5 V2 = 6.3e+00
+# model6 V1 = 6.8e+00
+```
+- It seems as though the estimate coefficients are proportional to the adjacent models, models 1+2 have the same numbers, models 3+4 are different but seem to have a proportional distance, same with models 5+6. This effect is due to the fact that the covariates share ~30% of the variance. Therefore, it does not matter how the data is modelled.
+
+Group Data:
+
+6) Fit the full model to all 37 participants' data
+
+```{}
+# Making matrix into a dataframe
+dataframe1 <- reshape(fmri, varying = c("V1", "V2", "V3", "V4", "V5","V6", "V7","V8", "V9","V10", "V11","V12", "V13","V14", "V15","V16", "V17","V18", "V19","V20", "V21","V22", "V23","V24", "V25","V26", "V27","V28", "V29","V30", "V31", "V32","V33", "V34","V35", "V36", "V37"), v.names = "score", "time", timevar = "subj", times = c("V1", "V2", "V3", "V4", "V5","V6", "V7","V8", "V9","V10", "V11","V12", "V13","V14", "V15","V16", "V17","V18", "V19","V20", "V21","V22", "V23","V24", "V25","V26", "V27","V28", "V29","V30", "V31", "V32","V33", "V34","V35", "V36", "V37"),new.row.names = 1:14800, direction = "long")
+
+# Converting into a list
+inf = dlply(dataframe1, "subj" , function(x) {
+  model <- lm(score ~ fmrides$V1 + fmrides$V2, data = x)
+  summary(model)
+  })
+
+# Remaking the list into a dataframe w/ the inferential stats (stats that tells us about the data)
+inf2 = ldply(inf, coef)
+
+# We have to reshape the data
+inf = inf2[seq(1,111, by=3),] #rows concerning the interceps
+inf1 = inf2[seq(2,111, by=3),] #rows concerning the slopes
+inf2 = inf2[seq(3,111, by=3),] #rows concerning the slopes
+merging = dplyr::left_join(inf, inf1, by = "subj") #merges the two rows
+merging = dplyr::left_join(merging, inf2, by = "subj")
+
+# Fitting full model to all paticipants
+slopemodel <- lm(merging$Estimate.y~1) 
+summary(slopemodel)
+
+```
+
+a. Test the two individual hypotheses that the set of coefficient from each covariate is different from zero across the whole group (similar to assignment one)
+```{}
+t.test(merging$Estimate.y) #Significance of the estimate of the slope for the first covariate 
+t.test(merging$Estimate) #Significance of the estimate of the slope for the second covariate
+```
+- V1 is significantly different from the null-hypothesis, t(36)= 16.607, p < .01
+- V2 is significantly different from the null-hypothesis too, t(36)= 15.603, p < .01
+
+b. Test the hypothesis that the contrast is different from zero across participants
+```{}
+# Creating a contrast column that has the difference between 1. and 2. covariates. 
+merging$Contrast = merging$Estimate.y - merging$Estimate  
+
+# Testing the contrast against the null hypothesis
+t.test(merging$Contrast) 
+```
+- The contrast between the two stories is not significantly different from the null hypothesis, t(36)= 0.696, p = .5. Both covariates are equally good predictors.
+
+
+c. Make a bar diagram including the mean effect of the two coefficients and the contrast, including error bars
+```{}
+# Subsetting the merging-dataframe so that it contains only the values of the estimate for two covariants and the contrast. 
+barplotdata <- subset(merging, select = c(Estimate.y, Estimate, Contrast)) 
+barplotdata <- stack(barplotdata, c(Estimate.y, Estimate, Contrast)) #Reshaping data from wide to long format. 
+
+# Creating a bar plot presenting the mean of the estimate for two covariates and the contrast. 
+barPlot <- ggplot(barplotdata, aes(ind, values)) + stat_summary(fun.y= mean, geom = "bar") + stat_summary(fun.data = mean_cl_normal, geom = "errorbar", width = 0.2) + 
+labs(x = "Covariant", y = "Estimate", fill = "ind")
+barPlot
+```
+- From the graph, we can see that there does not seem to be a big difference between the estimates of the two stories. The mean effect is almost the same, the error bars overlap. Additionally, the contrast between the two stories is very small. Overall, it would not matter what story the participant hear, it would have essentially the same effect. 

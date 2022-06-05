@@ -4,7 +4,7 @@ author: "Teemu"
 date: "3 2 2017"
 output: pdf_document
 ---
-
+testing to see if this commits
 
 ```{}
 setwd("~/Documents/Cognitive Science/2. semester/Experimental methods 2/R")

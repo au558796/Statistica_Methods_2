@@ -28,7 +28,7 @@ Reaction time is significantly predicted by days of sleep deprivation, b = 10.46
 - The coefficients shows us:
 i) That the intercept is 251.405 which implies that the regression line cuts the y axis at this point p < .01
 ii) That the slope is 10,467, which implies that for each day of sleep deprivation, the reaction time increases with 10.467 seconds p < .01
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 
 2) Combine both scatter plot and regression line in the same figure. You may also include all participants in one plot.
 
@@ -55,7 +55,7 @@ graphscat
 - In the first plot one sees a general increment in reaction time as a function of days of sleep deprivation, thus as days of sleep deprivation increase so does reaction time. The effect was the opposite for participant 335.
 
 - The second scatter plot confirms the general effects seen in the individual scatter plots. The grey area shows the 95 percent confidence interval. It shows the spread of the data, since it is narrow it shows little deviance. 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 
 3) Collect and report the inferential statistics for each participant in a table, including t-value, df and p-value.
 
@@ -79,7 +79,7 @@ View(merging)
 
 ```
 - The inferential statistics for each participant are shown in the table printed above.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 
 4) How many individual participants display a statistically significant effect of sleep deprivation (p-values uncorrected for multiple comparisons)?
 
@@ -104,7 +104,7 @@ for (x in merging$"Pr(>|t|).x") {
 
 ```
 - 14 out of 18 participants displayed a statistically significant effect of sleep deprivation.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 
 5) Test the fitted slopes across the group of participants against the null-hypothesis that the slopes are zero (i.e. no differences in response time exist as a function of time).
 
@@ -119,7 +119,7 @@ summary(slopemodel)
 - The test shows that the fitted slopes are significantly different from the null-hypothesis that there is no differences in response time as a function of time, t(17) = 6.771, p < .01.
 
 - We used a t-test to test the fitted slopes against the grand mean (null-hypothesis). A t-test is used to examine the difference between two means to see if they are the same, or if there is a significant difference.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 
 6) Report inferential statistics.
 
@@ -141,7 +141,7 @@ merging = round_df(merging, 3)
 View(merging)
 
 ```
-- The inferential statistics for each participant are shown in the table printed above. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+- The inferential statistics for each participant are shown in the table printed above. 
 
 7) Make a plot with the mean reaction time and standard error bars for each day across participants and plot the averaged regression line in the same figure.
 

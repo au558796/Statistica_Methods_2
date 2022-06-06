@@ -5,48 +5,24 @@ date: "3 2 2017"
 output: pdf_document
 ---
 
-```{}
+```{r setup, include=FALSE}
 
 setwd("C:\\Users\\danaj\\Documents\\GitHub\\Statistical_Methods_2")
 sleepdata = read.csv("sleepstudy.csv")
-#install.packages("data.table")   
-#install.packages("gt") 
-library(ggplot2)
-library(plyr)
-library("data.table")
-#library("gt")
-#library(tidyverse)
-#library(glue)
+#install.packages("pacman")
+library(pacman)
+p_load(data.table, gt, formattable, dplyr, plyr, tidyr, ggplot2, glue, Hmisc)
 
 ```
 
 1) Find the coefficients for the regression for reaction time as a function of days of sleep deprivation.
 
-```{}
+```{r}
 
 Model = lm(Reaction~Days, data = sleepdata)
 summary(Model)
 
 ```
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Call:
-lm(formula = Reaction ~ Days, data = sleepdata)
-
-Residuals:
-     Min       1Q   Median       3Q      Max 
--110.848  -27.483    1.546   26.142  139.953 
-
-Coefficients:
-            Estimate Std. Error t value Pr(>|t|)    
-(Intercept)  251.405      6.610  38.033  < 2e-16 ***
-Days          10.467      1.238   8.454 9.89e-15 ***
----
-Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-
-Residual standard error: 47.71 on 178 degrees of freedom
-Multiple R-squared:  0.2865,	Adjusted R-squared:  0.2825 
-F-statistic: 71.46 on 1 and 178 DF,  p-value: 9.894e-15
-
 Reaction time is significantly predicted by days of sleep deprivation, b = 10.467, t(16) = 8.454, p < .01.
 
 - The coefficients shows us:
@@ -56,84 +32,83 @@ ii) That the slope is 10,467, which implies that for each day of sleep deprivati
 
 2) Combine both scatter plot and regression line in the same figure. You may also include all participants in one plot.
 
-```{}
+```{r}
 
 # Scatter plot showing the days of sleep deprivation as a function of reaction time for each participant.
-
 sleepdata$Subject = as.factor(sleepdata$Subject)
-scatterplot <- ggplot(sleepdata, aes(y = Reaction, x = Days, colour = Subject)) + geom_point() + geom_smooth(method = lm) + labs(x = "Days of sleep deprivation", y = "Reaction time") + facet_wrap(~ Subject)
+scatterplot <- ggplot(sleepdata, aes(y = Reaction, x = Days, colour = Subject)) +
+  geom_point() + 
+  geom_smooth(method = lm) + 
+  labs(x = "Days of sleep Deprivation", y = "Reaction time", title = "Sleep Study") + 
+  facet_wrap(~ Subject)
 scatterplot
 
-
 # Scatter plot showing the same as above, but for all participant.
-
-graphscat = ggplot(sleepdata, aes(Days, Reaction))
-graphscat + geom_point() + geom_smooth(method = "lm")
+graphscat <- ggplot(sleepdata, aes(Days, Reaction, colour = Subject)) + 
+  geom_point() + 
+  labs(x = "Days of Sleep Deprivation", y = "Reaction Time", title = "Sleep Study") +
+  geom_smooth(method = "lm", colour = "Red")
+graphscat
 
 ```
 
 - In the first plot one sees a general increment in reaction time as a function of days of sleep deprivation, thus as days of sleep deprivation increase so does reaction time. The effect was the opposite for participant 335.
 
 - The second scatter plot confirms the general effects seen in the individual scatter plots. The grey area shows the 95 percent confidence interval. It shows the spread of the data, since it is narrow it shows little deviance. 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 3) Collect and report the inferential statistics for each participant in a table, including t-value, df and p-value.
 
-```{}
+```{r}
 
 # Make a dataframe into a list (dl) --> with the results from linear regressions, runs a linear model 
-
 inf = dlply(sleepdata, "Subject", function(x) {
   model <- lm(Reaction ~ Days, data = x)
   summary(model)
 })
 
 # Remaking the list into a dataframe w/ the inferential stats (stats that tells us about the data)
-
 inf2 = ldply(inf, coef)
 
 # We have to reshape the data
-
-inf = inf2[seq(1,36, by=2),] #rows concerning the interceps
-inf2 = inf2[seq(2,36, by=2),] #rows concerning the slopes
-merging = dplyr::left_join(inf, inf2, by = "Subject") #merges the two rows
-setDT(merging) # turn df into data table
-
-#make a nice table
-
+inf3 = inf2[seq(1,36, by=2),] #rows concerning the intercepts
+inf4 = inf2[seq(2,36, by=2),] #rows concerning the slopes
+merging = dplyr::left_join(inf3, inf4, by = "Subject") #merges the two rows
+#setDT(merging) # turn df into data table
+View(merging)
 
 ```
+- The inferential statistics for each participant are shown in the table printed above.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 4) How many individual participants display a statistically significant effect of sleep deprivation (p-values uncorrected for multiple comparisons)?
 
-```{}
+```{r}
 
-# Make a function that finds all p-values beneath .05
-
+# Find total p-values beneath .05
 sum(merging$`Pr(>|t|).y` <= 0.05)
 
-```
-
-- 14 out of 18 participants displayed a statistically significant effect of sleep deprivation.
-
-```{}
-
-#Adding two columns that show whether the estimates of the slope and the intercept are significant or not. 
-
+# Add column showing whether the estimate of the slope is significant
 merging["Significance.y"] = NA
-merging["Significance.x"] = NA
 for (x in merging$"Pr(>|t|).y") {
-  if(x <= 0.05) merging$Significance.y[merging$"Pr(>|t|).y" == x] = "Significant" else merging$Significance.y[merging$"Pr(>|t|).y" == x] = "Not significant"
+  if(x <= 0.05) merging$Significance.y[merging$"Pr(>|t|).y" == x] = "Significant" 
+  else merging$Significance.y[merging$"Pr(>|t|).y" == x] = "Not significant"
 }
 
+# Add column showing whether the estimate of the intercept is significant
+merging["Significance.x"] = NA
 for (x in merging$"Pr(>|t|).x") {
-  if(x <= 0.05) merging$Significance.x[merging$"Pr(>|t|).x" == x] = "Significant" else merging$Significance.x[merging$"Pr(>|t|).x" == x] = "Not significant"
+  if(x <= 0.05) merging$Significance.x[merging$"Pr(>|t|).x" == x] = "Significant" 
+  else merging$Significance.x[merging$"Pr(>|t|).x" == x] = "Not significant"
 }
 
 ```
+- 14 out of 18 participants displayed a statistically significant effect of sleep deprivation.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 5) Test the fitted slopes across the group of participants against the null-hypothesis that the slopes are zero (i.e. no differences in response time exist as a function of time).
 
-```{}
+```{r}
 
 # Running a t-test
 slopemodel <- lm(merging$Estimate.y~1) 
@@ -144,50 +119,43 @@ summary(slopemodel)
 - The test shows that the fitted slopes are significantly different from the null-hypothesis that there is no differences in response time as a function of time, t(17) = 6.771, p < .01.
 
 - We used a t-test to test the fitted slopes against the grand mean (null-hypothesis). A t-test is used to examine the difference between two means to see if they are the same, or if there is a significant difference.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 6) Report inferential statistics.
 
-```{}
+```{r}
 
-#Rename columns:
-
+# Make a list of new column names
 names =  c("Subject" = "Subject", "Estimate.x" = "Intercept",  "Std. Error.x" = "SE, intercept", "t value.x" = "t-value, intercept",     "Pr(>|t|).x" = "p-value, intercept", "Estimate.y" = "Slope", "Std. Error.y" = "SE, slope", "t value.y" = "t-value, slope",  "Pr(>|t|).y" = "p-value, slope", "Significance.y" = "Slope significance", "Significance.x" = "Intercept significance")
+merging = rename(merging, names) # use new names as headers
 
-merging = rename(merging, names)
-
-#Making a function that rounds the whole data frame. 
-
+# Make a function that rounds the whole data frame. 
 round_df <- function(df, digits) {
   nums <- vapply(df, is.numeric, FUN.VALUE = logical(1))
-
   df[,nums] <- round(df[,nums], digits = digits)
-
   (df)
 }
 
-#Round numbers 
+# Round numbers (by 3 digits)
 merging = round_df(merging, 3)
-
 View(merging)
 
 ```
-- The inferential statistics for each participant are shown in the table printed above. 
+- The inferential statistics for each participant are shown in the table printed above. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-7) Make a plot with the mean reaction time and standard errror bars for each day across participants and plot the averaged regression line in the same figure.
+7) Make a plot with the mean reaction time and standard error bars for each day across participants and plot the averaged regression line in the same figure.
 
-```{}
+```{r}
 
-meanplot <- ggplot(sleepdata, aes(Days, Reaction)) + stat_summary(fun.y= mean, geom = "bar", , fill = "White", colour = "Black") + stat_summary(fun.data = mean_cl_normal, geom = "errorbar", width = 0.5) + labs(x = "Day", y = "Reaction time") + geom_smooth(method = lm, colour = "Red")
+meanplot <- ggplot(sleepdata, aes(Days, Reaction)) + 
+  stat_summary(fun.y = mean, geom = "bar", fill = "White", colour = "Black") +
+  stat_summary(fun.data = mean_cl_normal, geom = "Errorbar", width = 0.5) + 
+  labs(x = "Days of Sleep Deprivation", y = "Reaction time", title = "Sleep Study") + 
+  geom_smooth(method = lm, colour = "Red")
 meanplot
 
 ```
 
 - The plot shows an upward trend which implies that the mean reaction time increases per day of sleep deprivation.
 
-
-```{}
-
-
-```
-
-~~~END~~~
+~~~~~~~~~~~~~~~~~~~~END~~~~~~~~~~~~~~~~~~~~~

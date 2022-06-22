@@ -1,6 +1,6 @@
 ---
 title: "Assignment III"
-author: "Dana Jensen, Teemu, Thea Andersen, Sofie Therkelsen, Anja Tørnqvist"
+author: "Dana Jensen"
 date: "February 17, 2017"
 output:
   pdf_document: default

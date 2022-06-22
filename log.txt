@@ -1,0 +1,10 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Dec 26 21:53:49 2016
+
+@author: Dana
+"""
+import re
+
+f = open("log.txt")
+log_data = f.read("log.txt")

@@ -2,9 +2,7 @@
 title: "Assignment III"
 author: "Dana Jensen"
 date: "February 17, 2017"
-output:
-  pdf_document: default
-  html_document: default
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
@@ -13,13 +11,14 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r}
 # setting working directory and loading data, packages etc.
-setwd("C:/Users/Dana/Desktop/METHODS II/CLASS EXERCIZES")
-library(psych)
-library(ggplot2)
+setwd("C:\\Users\\danaj\\Documents\\GitHub\\Statistical_Methods_2")
+library(pacman)
+p_load(psych, ggplot2)
+
 parametres = read.table("parametres.txt", header = FALSE)
-fmri<-as.matrix(read.csv("aud_fmri_data37.csv", header=FALSE))
+fmri<-as.matrix(read.csv("aud_fmri_data37.csv", header = FALSE))
 fmri2<-ts(fmri)
-fmrides<-as.matrix(read.csv("aud_fmri_design.csv", header=FALSE))
+fmrides<-as.matrix(read.csv("aud_fmri_design.csv", header = FALSE))
 fmrides2<-ts(fmrides)
 ```
 

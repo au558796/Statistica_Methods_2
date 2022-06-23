@@ -22,8 +22,7 @@ fmrides<-as.matrix(read.csv("aud_fmri_design.csv", header = FALSE))
 fmrides2<-ts(fmrides)
 ```
 
-Import the realignment parameters into R.
-3.a. Make a lineplot of the realignment parameters in R.
+Import the realignment parameters into R. Make a lineplot of the realignment parameters in R.
 ```{r}
 
 # making a dataframe
@@ -38,8 +37,8 @@ lineplot <- ggplot(lineplotdata, aes(session, values, group = ind, colour = ind)
 lineplot
 
 ```
-3.b. How far has the participant moved for each dimension during the experiment (Hint: use "apply()" to
-run a function across columns)?
+
+How far has the participant moved for each dimension during the experiment (Hint: use "apply()" to run a function across columns)?
 ```{r}
 
 # finding the range of how far the participant moved
@@ -57,8 +56,7 @@ sum(ranges1[4:6])
 ```
 There was more movement in the first three dimensions compared to the last three dimensions, -1.47 vs. -0.02.
 
-3.c. Are any of the realignment parameters significantly correlated with the fMRI model (same model as
-used in exercise 2)?
+Are any of the realignment parameters significantly correlated with the fMRI model?
 ```{r}
 
 # converting to dataframe
@@ -92,19 +90,21 @@ residuals1 = data.frame(r1,r2,r3,r4,r5,r6)
 ```
 
 
-3.d. Make a lineplot of the realignment parameters with time removed.
+Make a lineplot of the realignment parameters with time removed.
 ```{r}
 
 # lineplot of residuals
 lineplot2data <- stack(residuals1, c(r1,r2,r3,r4,r5,r6))
 lineplot2data$session = c(1:400, 1:400, 1:400, 1:400, 1:400, 1:400)
-lineplot2 <- ggplot(lineplot2data, aes(session, values, group = ind, colour = ind)) + geom_line()
+lineplot2 <- ggplot(lineplot2data, aes(session, values, group = ind, colour = ind)) +
+  geom_line()
 
 # lineplot parametres with time removed
 lineplot2
 
 ```
-3.e. Make a lineplot including only the first realignment parameter before and after removal.
+
+Make a lineplot including only the first realignment parameter before and after removal.
 ```{r}
 
 # defining before and after residual removal
@@ -115,13 +115,16 @@ Before = parametres[,1]
 lineplot3data = data.frame(Before, After)
 lineplot3data <- stack(lineplot3data, c(Before, After))
 lineplot3data$session = c(1:400)
-lineplot3 <- ggplot(lineplot3data, aes(session, values, group = ind, colour = ind)) +labs(title = "First realignment parameter, before and after removal of the effect of time", x= "Time", y = "Value", colour = "") + geom_line()
+lineplot3 <- ggplot(lineplot3data, aes(session, values, group = ind, colour = ind)) +
+  labs(title = "First realignment parameter, before and after removal of the effect of time", x= "Time", y = "Value", colour = "") + 
+  geom_line()
 
 # lineplot before and after removal of time effect
 lineplot3
 
 ```
-3.f. Are the realignment parameters (corrected for effects of time) now correlated with the fMRI model?
+
+Are the realignment parameters (corrected for effects of time) now correlated with the fMRI model?
 ```{r}
 
 # testing for correlation

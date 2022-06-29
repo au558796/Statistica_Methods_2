@@ -1,167 +1,218 @@
 ---
 title: "Assignment VI"
-author: "Dana Jensen, Teemu, Thea Andersen, Sofie Therkelsen, Anja Tørnqvist"
+author: "Dana Jensen"
 date: "March 10, 2017"
-output:
-  html_document: default
-  pdf_document: default
+output: github_document
 ---
 Assignment Tasks
+
 1. Comprehension
 1a: Please explain which factor was between-participants and which were within-participants and why.
 
 - The within-participant effect is emotion (neutral and fearful). This is a within-participant factor because they do not vary between participants, and each participant has the same experience. The between-participant factor is colour (blue and yellow). This is because the factor varies over participants, creating two conditions. Therefore, the multiple effects to be analysed are colours, colour frequency, and emotion. 
 
-2. Data exploring and preparation
+2. Data exploring and preparation.
+
 Find the data on blackboard. Load the data using somehting like the following code:
+
 ```{r}
-setwd("C:/Users/Dana/Desktop/METHODS II/CLASS EXERCIZES")
-face_exp<-read.csv("face_exp_data_all.csv", sep=";")
-library(ggplot2)
-library(pastecs)
-library(nlme)
-library(car)
-#conditions are coded in the "cond_blue", "cond_emo" and "freq" variables
+setwd("C:\\Users\\danaj\\Documents\\GitHub\\Statistical_Methods_2")
+face_exp<-read.csv("face_exp_data_all.csv", sep=";") #conditions are coded in the "cond_blue", "cond_emo" and "freq" variables
+library(pacman)
+p_load(ggplot2, pastecs, nlme, car)
 ```
+
 Make sure that factorial variables are coded as factors using the as.factor() function.
+
 ```{r}
 #setting variables as factors
 face_exp$cond_emo = as.factor(face_exp$cond_emo)
 face_exp$freq = as.factor(face_exp$freq)
-
 ```
-2.a.: Make a box-plot of the data with RT on the y-axix and emotional condition on the x-axis with colour being coded as "fill" colour. Plot the two different frequency groups using "facet_wrap(~freq, labeller=label_both)
-in ggplot (e.g. see student resources for Field, chapter 14). Make the boxes appear in appropriate colours,
-e.g. using" + scale_fill_manual(values=c("yellow","blue","yellow","blue","yellow","blue","yellow","blue"))" .
+
+2.a.: Make a box-plot of the data with RT on the y-axix and emotional condition on the x-axis with colour being coded as "fill" colour. Plot the two different frequency groups using "facet_wrap(~freq, labeller=label_both) in ggplot (e.g. see student resources for Field, chapter 14). Make the boxes appear in appropriate colours, e.g. using" + scale_fill_manual(values = c("yellow","blue","yellow","blue","yellow","blue","yellow","blue"))".
 
 ```{r}
 #box plot depicting the four different conditions (freq= b,y; cond.emo= 0,1)
-plot <- ggplot(face_exp, aes(cond_emo, rt, fill = cond_emo)) + geom_boxplot() + facet_wrap(~freq, labeller=label_both) + scale_fill_manual(values=c("yellow","blue","yellow","blue","yellow","blue","yellow","blue"))
+plot <- ggplot(face_exp, aes(cond_emo, rt, fill = cond_emo)) + 
+  geom_boxplot() + 
+  facet_wrap(~freq, labeller=label_both) +
+  scale_fill_manual(values=c("yellow","blue","yellow","blue","yellow","blue","yellow","blue"))
+
 plot
 ```
 
 2.b Explain why this plot shows that there is something wrong with the data.
-- First of all, there are a lot of outliers in the data across the conditions (0 and 1). This can be seen by the many dots on the 'whiskers' of the box plots. Second of all, there seems to be no difference between the frequency conditions. For each frequency condition, the two emotion variables have close to the same mean and distrobution. Finally, there are a lot of reaction time values around zero in the "b" frequency condition. This is caused by the "t" indication for the fmri, which then records at zero. This appears corrected for the second "y" condition. 
+
+- First of all, there are a lot of outliers in the data across the conditions (0 and 
+1). This can be seen by the many dots on the 'whiskers' of the box plots. Second of all, there seems to be no difference between the frequency conditions. For each frequency condition, the two emotion variables have close to the same mean and distrobution. Finally, there are a lot of reaction time values around zero in the "b" frequency condition. This is caused by the "t" indication for the fmri, which then records at zero. This appears corrected for the second "y" condition. 
 
 2.c.: Make a subset of the data, including only correct responses.
+
 ```{r}
 # Making a subset with only the correct responses 
 face_expSub = subset(face_exp, correct_resp == 1)
-
-
 ```
+
 2.d.: Make another boxplot similar to that in 2.a.
+
 ```{r}
 #another box plot without outliers
+plot2 <- ggplot(face_expSub, aes(cond_emo, rt, fill = cond_emo)) + 
+  geom_boxplot() + 
+  facet_wrap(~freq, labeller=label_both) +
+  scale_fill_manual(values=c("green","red","green","red","green","red","green","red"))
 
-plot <- ggplot(face_expSub, aes(cond_emo, rt, fill = cond_emo)) + geom_boxplot() + facet_wrap(~freq, labeller=label_both) + scale_fill_manual(values=c("yellow","blue","yellow","blue","yellow","blue","yellow","blue"))
-plot
-
+plot2
 ```
+
 2.e.: Use the by() function and stat.desc (in library(pastecs)) to get descriptive measures for the different conditions.
+
 ```{r}
 #producing descriptive statistics
 
-by(face_expSub, face_expSub$freq_emo, stat.desc, basic = FALSE)
-by(face_expSub, face_expSub$freq, stat.desc, basic = FALSE)
+emo <- by(face_expSub, face_expSub$cond_emo, stat.desc, basic = FALSE)
+blue <- by(face_expSub, face_expSub$cond_blue, stat.desc, basic = FALSE)
 ```
--The blue frequency condition has a mean of 0.58 and a standard deviation of 0.15.
--The yellow frequency condition has a mean of 0.69 and a standard deviation of 0.20.
+
+- The blue frequency condition has a mean of 0.58 and a standard deviation of 0.15.
+- The yellow frequency condition has a mean of 0.69 and a standard deviation of 0.20.
 
 
 2.f.: Explore if the data is normally distributed using a qq-plot (qqp()).
 
 ```{r}
 # creating a qq plot to test normality distribution
-qplot(sample = face_expSub$rt, stat= "qq")+
+p1 <- qplot(sample = face_expSub$rt, stat= "qq")+
   theme_classic()
+
+p1
 ```
--The data do not appear to be in a linear formation, rather they are curved, indicating the data is not normally distributed.
+
+- The data do not appear to be in a linear formation, rather they are curved, indicating the data is not normally distributed.
 
 2.g.: log-transform the data.
+
 ```{r}
 # log transforming the data (taking log of each value). +1 for values of zero
 face_expSub$logrt <- log(face_expSub$rt + 1)
 ```
+
 2.h.: Use a qq-plot to explore if the transformed data appear more normal than the untransformed.
+
 ```{r}
 #yet another qq plot to see if the log transformation fixed the normality problem
-qplot(sample = face_expSub$logrt, stat= "qq")+
+p2 <- qplot(sample = face_expSub$logrt, stat= "qq")+
   theme_classic()
 
+p2
 ```
--The data slightly is more normalised, however the data still appears to be curved.
+
+- The data slightly is more normalised, however the data still appears to be curved.
 
 2.i.: Explore the response times for each participant, individually, using a box-plot.
+
 ```{r}
 #box plot for each participant
-rtplot <- ggplot(face_expSub, aes(ID, rt, fill = ID)) + geom_boxplot() + theme(axis.text.x = element_text(angle = 60, hjust = 1))
+rtplot <- ggplot(face_expSub, aes(ID, rt, fill = ID)) + 
+  geom_boxplot() + 
+  theme(axis.text.x = element_text(angle = 60, hjust = 1))
+
 rtplot
 ```
--None of the data seem to be skewed (all boxes have both "whiskers"). However, there seems to be a lot of outliers for the individual participants.There is also variation in the range between participants.
+
+- None of the data seem to be skewed (all boxes have both "whiskers"). However, there seems to be a lot of outliers for the individual participants.There is also variation in the range between participants.
 
 3. Data analysis
-3.a.: Make a mixed-effects model using the lme() or lmer() function, including the three factors as fixed
-effects and participants as random effects. Include 2-way and 3-way interactions. Use maximum-likelihood as
-estimation method (method="ML").
+3.a.: Make a mixed-effects model using the lme() or lmer() function, including the three factors as fixed effects and participants as random effects. Include 2-way and 3-way interactions. Use maximum-likelihood as estimation method (method="ML").
+
 ```{r}
 #Using a multi-level model to compute a mixed-effects model
-model1<-lme(rt ~ freq + cond_emo + cond_blue + freq:cond_emo + freq:cond_blue + cond_emo:cond_blue + freq:cond_emo:cond_blue, random = ~1|ID, method = "ML", data = face_expSub )
+model1<-lme(rt ~ freq + 
+              cond_emo + 
+              cond_blue + 
+              freq:cond_emo + 
+              freq:cond_blue + 
+              cond_emo:cond_blue + 
+              freq:cond_emo:cond_blue, 
+            random = ~1|ID, 
+            method = "ML", 
+            data = face_expSub)
 ```
+
 3.b.: Report the t-statistics using summary().
+
 ```{r}
 summary(model1)
 ```
--Only one of the variables (blue condition) turned out to be a significant predictor of reaction time, t(1059)= -2.04, p= .041.
+
+- Only one of the variables (blue condition) turned out to be a significant predictor of reaction time, t(1059)= -2.04, p= .041.
 
 3.c.: Report the F-statistics using anova() Which gives you type='I' analysis.
+
 ```{r}
 #running anova to get F statistic with type I analysis
 anova(model1)
-
 ```
 
+3.d.: Report the F-statistics using library(car) Anova() and type='III'. Why might there be differences between results from 3.c and 3.d?
 
-3.d.: Report the F-statistics using library(car) Anova() and type='III'. Why might there be differences
-between results from 3.c and 3.d?
 ```{r}
 #anova with type III analysis
 Anova(model1, type = "III")
-
 ```
--For type I analysis, the variance is explained using the first chronological variable. All variables following are not analysed independently, meaning that the variance is only attributed to the first variable.This is why in the output for the type I analysis, only frequency (the first variable) is significant. On the other hand, type III compensates for multiple variables, and therefore individually analyses the variables, while taking into account all other variables. This means that the variance that may have only been attributed to first variable in the Type I is now spread to variance explained by multiple variables. This is why the Type III output has multiple significant variables.
+
+- For type I analysis, the variance is explained using the first chronological variable. All variables following are not analysed independently, meaning that the variance is only attributed to the first variable.This is why in the output for the type I analysis, only frequency (the first variable) is significant. On the other hand, type III compensates for multiple variables, and therefore individually analyses the variables, while taking into account all other variables. This means that the variance that may have only been attributed to first variable in the Type I is now spread to variance explained by multiple variables. This is why the Type III output has multiple significant variables.
 
 3.e.: Make a new model including a random slope from trial number ('no' in the log-file). Repeat 3.b. Did it change the results?
+
 ```{r}
 # random slope model
-newModel<-lme(rt ~ freq + cond_emo + cond_blue + freq:cond_emo + freq:cond_blue + cond_emo:cond_blue + freq:cond_emo:cond_blue, random = ~no|ID, method = "ML", data = face_expSub)
+newModel<-lme(rt ~ freq + 
+                cond_emo + 
+                cond_blue + 
+                freq:cond_emo + 
+                freq:cond_blue + 
+                cond_emo:cond_blue + 
+                freq:cond_emo:cond_blue, 
+              random = ~no|ID, 
+              method = "ML", 
+              data = face_expSub)
+
 summary(newModel)
-
-
-
-
 ```
 
-3.f.: Make a model comparison of model 3.a and 3.e using anova(). Did the inclusion of a random slope
-significantly improve the model?
+3.f.: Make a model comparison of model 3.a and 3.e using anova(). Did the inclusion of a random slope significantly improve the model?
 
 ```{r}
 #Comparing fit of the two models
 anova(model1, newModel)
 ```
--The random slopes improved the model, because the log likelihood was higher and the AIC was lower (Log likelihood 508.08 versus 497.33, AIC -992.15 versus -974.66).
+
+- The random slopes improved the model, because the log likelihood was higher and the AIC was lower (Log likelihood 508.08 versus 497.33, AIC -992.15 versus -974.66).
 
 3.g.: Response times are correlated in time. It might therefore be an idea to include a so-called auto-regressive component in the model (e.g. this is default in SPM analyses of fMRI-data). In lme(), this is done by adding the following to the model specification: "cor=corAR1(,form=~1|ID)". Does that have an effect?
 
 ```{r}
 #adding an auto-regressive component to the model
-regressiveModel<-lme(rt ~ freq + cond_emo + cond_blue + freq:cond_emo + freq:cond_blue + cond_emo:cond_blue + freq:cond_emo:cond_blue, random = ~no|ID, method = "ML", data = face_expSub, cor=corAR1(,form=~1|ID) )
+regressiveModel<-lme(rt ~ freq +
+                       cond_emo + 
+                       cond_blue + 
+                       freq:cond_emo + 
+                       freq:cond_blue + 
+                       cond_emo:cond_blue + 
+                       freq:cond_emo:cond_blue, 
+                     random = ~no|ID, method = "ML", 
+                     data = face_expSub, 
+                     cor = corAR1 (form = ~1|ID))
+
 summary(regressiveModel)
 anova(newModel, regressiveModel)
 ```
+
 Adding an auto regressive improves the model compared to the first nor the second model (log likelihood is 510.98, AIC is -1007.04)
 
-4. Results and interpretion.
+4. Results and interpretation.
 4.a.: If you were to report these results, which model would you use and why?
 
 - The model we would use would be the regressive model, because it leaves the least amount of variance unexplained (the model fits the data the best).

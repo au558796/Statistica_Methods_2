@@ -5,7 +5,7 @@ output: github_document
 date: '2022-06-29'
 ---
 
-```{r setup, include=FALSE}
+```{r}
 
 #Set Working Directory
 setwd("C:\\Users\\danaj\\Documents\\GitHub\\Statistical_Methods_2")
@@ -19,9 +19,7 @@ p_load(ggplot2, pastecs)
 data = read.delim("CogSciPersonality2016.txt")
 
 ggplot (data,aes(x=Romberg_eyes_closed))+geom_histogram(bins=2)
-
 ggplot (data,aes(x=Romberg_eyes_closed))+geom_histogram(bins=2)
-
 ggplot (data,aes(x=Tongue_twister_rt))+geom_histogram(binwidth=2)
 
 summary("Tongue_twister_rt")
@@ -31,15 +29,11 @@ summary("Tongue_twister_rt")
 #mean()
 #sd()
 #nrow()
-
-
-summary()
-
-pastecs::stat.desc() - stat.desc - comes from (::) library pastects (must load library before use)
+#summary()
 
 stat.desc(basic = FALSE , norm = TRUE)
-
 by(data, splitby, function)
+
 # split data, apply function to split, combine to summary
 # takes data in data frame (shoe size), "split by" gender, factor, logical vector, give it a function "run on each set of data" could be mean, summary, etc
 
@@ -47,12 +41,7 @@ by(data, splitby, function)
 
 ggplot(data , aes (x = Romberg_eyes_closed)) + geom_histogram(binwidth = 2)
 
-install.packages("pastecs")
-
-library(pastecs)
-
 by(data$Romberg_eyes_closed , data$Gender , stat.desc)
-
 by(data $ Shoe_size , data$ Gender , stat.desc)
 
 #split shoe size by gender, run stat.desc on each group
@@ -65,7 +54,6 @@ median(data$Ballon_balancing)
 finger_balloon = c(0.955,8.5)
 
 Theresa = data [data$Name == "Theresa ,"]
-
 T.bone = data [data$Name == "Theresa" ]
 
 data$Ballon_balancing [data$Name == "Theresa"]

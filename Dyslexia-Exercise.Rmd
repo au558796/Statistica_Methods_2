@@ -18,31 +18,41 @@ p_load(caret, e1071)
 #load data
 dyslexia <- read.table("dyslexia.txt", header=TRUE)
 
-#split text based on "task"
-d_text = dyslexia[dyslexia$Task == "Text",]
-d_words = dyslexia[dyslexia$Task == "Words",]
-d_nonwords = dyslexia[dyslexia$Task == "Non-Words",]
-
 #change diagnosis to binary
 dyslexia$Diagnosis[dyslexia$Diagnosis == 'noDyslexia'] <- '0'
 dyslexia$Diagnosis[dyslexia$Diagnosis == 'Dyslexia'] <- '1'
 dyslexia$Diagnosis <- as.numeric(dyslexia$Diagnosis)
 
+#split text based on "task"
+d_text = dyslexia[dyslexia$Task == "Text",]
+d_words = dyslexia[dyslexia$Task == "Words",]
+train <- rbind(d_text,d_words)
+d_nonwords = dyslexia[dyslexia$Task == "Non-Words",]
+
+#Make a training (model) subset and a testing (prediction) subset
+train <- subset(train, select = c("Mistakes", "Diagnosis","Task"))
+test <- subset(d_nonwords, select = c("Mistakes", "Diagnosis","Task"))
+
 #make a logistic regression with one predictor(baseline)
-m1 = glm(Diagnosis ~ Mistakes, data = dyslexia, family = "binomial")
-m1_sum = summary(m1)
+m1 = glm(Diagnosis ~ Mistakes, data = train, family = "binomial")
 
 #make a vector which predicts "response"
-predictions = predict(d_nonwords, type = "response")
+predictions = predict(m1, newdata = test, type = "response")
 
 #if 'response' is <.5, label as 'noDyslexia', vice versa
-predictions
 predicted_diagnosis = ifelse(predictions<.5,"0","1")
-predicted_diagnosis
 
 #make a matrix to see how accurate predictions of diagnosis are
-d.Matrix = caret::confusionMatrix(predicted_diagnosis, d$Diagnosis, positive = "Dyslexia")
-d.Matrix
+#dyslexia$Diagnosis <- as.factor(dyslexia$Diagnosis)
+predicted_diagnosis <- data.frame(as.factor(predicted_diagnosis))
+names(predicted_diagnosis) <- "Prediction"
+predicted_diagnosis$Prediction <- as.factor(predicted_diagnosis$Prediction)
+
+real <- data.frame(test$Diagnosis)
+names(real) <- "Diagnosis"
+real$Diagnosis <- as.factor(real$Diagnosis)
+
+d.Matrix = confusionMatrix(predicted_diagnosis$Prediction, test$Diagnosis)
 
 #multiple regression to test different hypothesis of predictors
 m.Words = glm(Diagnosis ~ SyllableN, data = d.Words,family = "binomial")

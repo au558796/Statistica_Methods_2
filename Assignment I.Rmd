@@ -42,7 +42,8 @@ scatterplot <- ggplot(sleepdata, aes(y = Reaction, x = Days, colour = Subject)) 
   geom_smooth(method = lm) + 
   labs(x = "Days of sleep Deprivation", y = "Reaction time", title = "Sleep Study") + 
   facet_wrap(~ Subject)+
-  theme(legend.position = "none") 
+  theme(legend.position = "none") +
+  theme(plot.title = element_text(hjust = 0.5))
 scatterplot
 ggsave("scatterplot.png")
 
@@ -50,7 +51,8 @@ ggsave("scatterplot.png")
 graphscat <- ggplot(sleepdata, aes(Days, Reaction, colour = Subject)) + 
   geom_point() + 
   labs(x = "Days of Sleep Deprivation", y = "Reaction Time", title = "Sleep Study") +
-  geom_smooth(method = "lm", colour = "Red")
+  geom_smooth(method = "lm", colour = "Red")+
+  theme(plot.title = element_text(hjust = 0.5))
 graphscat
 ggsave("graphscat.png")
 
@@ -156,7 +158,8 @@ meanplot <- ggplot(sleepdata, aes(Days, Reaction, fill = Days)) +
   stat_summary(fun = mean, geom = "bar", colour = "Black") +
   stat_summary(fun.data = mean_cl_normal, geom = "Errorbar", width = 0.5) + 
   labs(x = "Days of Sleep Deprivation", y = "Reaction time", title = "Sleep Study")+
-  theme(legend.position = "none") 
+  theme(legend.position = "none") +
+  theme(plot.title = element_text(hjust = 0.5))
 meanplot
 ggsave("meanplot.png")
 

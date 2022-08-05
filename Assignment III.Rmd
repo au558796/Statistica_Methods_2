@@ -31,11 +31,11 @@ lineplotdata <- stack(parametres, c(V1, V2, V3, V4, V5, V6))
 lineplotdata$session = c(1:400, 1:400, 1:400, 1:400, 1:400, 1:400)
 
 # lineplot of the realignment parameters
-lineplot <- ggplot(lineplotdata, aes(session, values, group = ind, colour = ind)) + geom_line()
-
-#lineplot of realignment parametres
+lineplot <- ggplot(lineplotdata, aes(session, values, group = ind, colour = ind)) + 
+  geom_line()+
+  labs(x = "Session", y = "Realigntment", title = "FMRI Story Study")+
+  theme(legend.position = "none")
 lineplot
-
 ```
 
 How far has the participant moved for each dimension during the experiment (Hint: use "apply()" to run a function across columns)?

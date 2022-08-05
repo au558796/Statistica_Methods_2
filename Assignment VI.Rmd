@@ -126,6 +126,12 @@ p2
 2.i.: Explore the response times for each participant, individually, using a box-plot.
 
 ```{r}
+#Making sure names are capitalized
+face_expSub$ID = setNames(c('Anders','Blanka', 'Camille', 'Julie', 'Ludvig', 'Malte1', 'Malte2', 'Marie-Louise1', 'Marie-Louise2', 'Mathilde', 'Oliver', 'Savannah', 'Soeren'), c('anders', 'blanka', 'camille', 'julie', 'ludvig',  'malte', 'malte2', 'marielouise', 'marielouis2', 'mathilde', 'oliver', 'savannah', 'soeren'))[face_expSub$ID]
+
+#Assigning value to NA
+face_expSub$ID[is.na(face_expSub$ID)] <- "Dana"
+
 #box plot for each participant
 rtplot <- ggplot(face_expSub, aes(ID, rt, fill = ID)) + 
   geom_boxplot() + 
@@ -134,7 +140,8 @@ rtplot <- ggplot(face_expSub, aes(ID, rt, fill = ID)) +
   labs(x = "Participants", y = "Reaction Time", title = "Emotional Reaction Study")+
   theme(plot.title = element_text(hjust = 0.5))
 rtplot
-ggsave("rtplot.png")
+
+ggsave("rtplot.png", width = 10, height = 8, dpi = 150)
 ```
 
 - None of the data seem to be skewed (all boxes have both "whiskers"). However, there seems to be a lot of outliers for the individual participants.There is also variation in the range between participants.

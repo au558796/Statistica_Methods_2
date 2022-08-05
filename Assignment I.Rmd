@@ -45,7 +45,7 @@ scatterplot <- ggplot(sleepdata, aes(y = Reaction, x = Days, colour = Subject)) 
   theme(legend.position = "none") +
   theme(plot.title = element_text(hjust = 0.5))
 scatterplot
-ggsave("scatterplot.png")
+ggsave("scatterplot.png", width = 10, height = 8, dpi = 150)
 
 # Scatter plot showing the same as above, but for all participant.
 graphscat <- ggplot(sleepdata, aes(Days, Reaction, colour = Subject)) + 
@@ -54,7 +54,7 @@ graphscat <- ggplot(sleepdata, aes(Days, Reaction, colour = Subject)) +
   geom_smooth(method = "lm", colour = "Red")+
   theme(plot.title = element_text(hjust = 0.5))
 graphscat
-ggsave("graphscat.png")
+ggsave("graphscat.png", width = 10, height = 8, dpi = 150)
 
 ```
 

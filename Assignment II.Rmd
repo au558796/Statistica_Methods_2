@@ -24,10 +24,10 @@ b. A figure lineplots with the model covariates
 
 ```{r}
 # lineplot from all participants
-matplot(fmri, type = "l")
+matplot(fmri, type = "l", main = "FMRI Story Study" )
 
 # lineplot with model covariates
-matplot(fmrides, type = "l")
+matplot(fmrides, type = "l", main = "FMRI Story Study")
 ```
 - Notice: baselines can vary. Example: one participant's baseline is just above the 600 on the y axis, where another participant's is verging around the 950 mark.
 
@@ -171,10 +171,11 @@ barplotdata <- subset(merging, select = c(Estimate.y, Estimate, Contrast))
 #Reshaping data from wide to long format.
 barplotdata <- stack(barplotdata, c(Estimate.y, Estimate, Contrast)) 
 # Creating a bar plot presenting the mean of the estimate for two covariates and the contrast. 
-barPlot <- ggplot(barplotdata, aes(ind, values)) + 
-  stat_summary(fun.y= mean, geom = "bar", fill = "White", colour = "Black") + 
+barPlot <- ggplot(barplotdata, aes(ind, values, fill = ind)) + 
+  stat_summary(fun.y= mean, geom = "bar", colour = "Black") + 
   stat_summary(fun.data = mean_cl_normal, geom = "errorbar", width = 0.1) + 
-  labs(x = "Covariant", y = "Estimate", fill = "ind")
+  labs(x = "Covariant", y = "Estimate", fill = "ind", title = "Mean Estimates and Contrast")+
+  theme(legend.position = "none")
 barPlot
 ```
 - From the graph, we can see that there does not seem to be a substantial difference between the estimates of the two stories. The mean effect is nearly the same and the error bars overlap. Additionally, the contrast between the two stories is very small. Overall, it would not matter what story the participant heard, it would have essentially the same effect. 

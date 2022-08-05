@@ -36,12 +36,15 @@ ii) That the slope is 10,467, which implies that for each day of sleep deprivati
 
 # Scatter plot showing the days of sleep deprivation as a function of reaction time for each participant.
 sleepdata$Subject = as.factor(sleepdata$Subject)
+
 scatterplot <- ggplot(sleepdata, aes(y = Reaction, x = Days, colour = Subject)) +
   geom_point() + 
   geom_smooth(method = lm) + 
   labs(x = "Days of sleep Deprivation", y = "Reaction time", title = "Sleep Study") + 
-  facet_wrap(~ Subject)
+  facet_wrap(~ Subject)+
+  theme(legend.position = "none") 
 scatterplot
+ggsave("scatterplot.png")
 
 # Scatter plot showing the same as above, but for all participant.
 graphscat <- ggplot(sleepdata, aes(Days, Reaction, colour = Subject)) + 
@@ -49,6 +52,7 @@ graphscat <- ggplot(sleepdata, aes(Days, Reaction, colour = Subject)) +
   labs(x = "Days of Sleep Deprivation", y = "Reaction Time", title = "Sleep Study") +
   geom_smooth(method = "lm", colour = "Red")
 graphscat
+ggsave("graphscat.png")
 
 ```
 
@@ -146,13 +150,15 @@ View(merging)
 7) Make a plot with the mean reaction time and standard error bars for each day across participants and plot the averaged regression line in the same figure.
 
 ```{r}
+sleepdata$Days = as.factor(sleepdata$Days)
 
-meanplot <- ggplot(sleepdata, aes(Days, Reaction)) + 
-  stat_summary(fun.y = mean, geom = "bar", fill = "White", colour = "Black") +
+meanplot <- ggplot(sleepdata, aes(Days, Reaction, fill = Days)) + 
+  stat_summary(fun = mean, geom = "bar", colour = "Black") +
   stat_summary(fun.data = mean_cl_normal, geom = "Errorbar", width = 0.5) + 
-  labs(x = "Days of Sleep Deprivation", y = "Reaction time", title = "Sleep Study") + 
-  geom_smooth(method = lm, colour = "Red")
+  labs(x = "Days of Sleep Deprivation", y = "Reaction time", title = "Sleep Study")+
+  theme(legend.position = "none") 
 meanplot
+ggsave("meanplot.png")
 
 ```
 

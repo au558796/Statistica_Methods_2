@@ -161,7 +161,7 @@ meanplot <- ggplot(sleepdata, aes(Days, Reaction, fill = Days)) +
   theme(legend.position = "none") +
   theme(plot.title = element_text(hjust = 0.5))
 meanplot
-ggsave("meanplot.png")
+ggsave("meanplot.png", width = 10, height = 8, dpi = 150)
 
 ```
 

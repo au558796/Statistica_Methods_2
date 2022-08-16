@@ -6,32 +6,32 @@ output: github_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 #Set Working Directory
 setwd("C:\\Users\\danaj\\Documents\\GitHub\\Statistical_Methods_2")
 library(pacman)
 p_load(lme4)
+data = read.delim("Lacourse et al. (2001) Females.dat")
 ```
 
 
 ```{r pressure, echo=FALSE}
+bi.suicide = ifelse(data$Suicide_Risk > 0, 1, 0)
 
-data = read.delim("Lacourse et al. (2001) Females.dat")
-
-Model1 = glm(Suicide_Risk ~ Metal, data = data, family = binomial())
+Model1 = glm(bi.suicide ~ Metal, data = data, family = binomial())
 Model1_chi = Model1$null.deviance-Model1$deviance
 Model1_chi
 
 chidf= Model1$df.null-Model1$df.residual
 chidf
 
-chisq.prob = 1- pchisq(Model1Chi, chidf)
+chisq.prob = 1- pchisq(Model1_chi, chidf)
 chisq.prob
 
-R2.hl = Model1Chi/Model1$null.deviance
+R2.hl = Model1_chi/Model1$null.deviance
 R2.hl
 
-Model2 = glm(Suicide_Risk ~ Metal + 
+Model2 = glm(bi.suicide ~ Metal + 
                Self_Estrangement + 
                Marital_Status, data = data, family = binomial())
 Model2

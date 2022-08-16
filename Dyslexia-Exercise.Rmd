@@ -9,7 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r pressure, echo=FALSE}
+```{r, echo=FALSE}
 #Set Working Directory
 setwd("C:\\Users\\danaj\\Documents\\GitHub\\Statistical_Methods_2")
 library(pacman)

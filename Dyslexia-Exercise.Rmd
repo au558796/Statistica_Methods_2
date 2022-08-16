@@ -5,30 +5,30 @@ date: "`r Sys.Date()`"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
-```{r, echo=FALSE}
+```{r setup, include=FALSE, echo=FALSE}
 #Set Working Directory
 setwd("C:\\Users\\danaj\\Documents\\GitHub\\Statistical_Methods_2")
-library(pacman)
+library(pacman, caret)
 p_load(caret, e1071)
 
 #load data
 dyslexia <- read.table("dyslexia.txt", header=TRUE)
+```
 
+```{r cleaning, echo=FALSE}
 #change diagnosis to binary
 dyslexia$Diagnosis[dyslexia$Diagnosis == 'noDyslexia'] <- '0'
 dyslexia$Diagnosis[dyslexia$Diagnosis == 'Dyslexia'] <- '1'
 dyslexia$Diagnosis <- as.numeric(dyslexia$Diagnosis)
 
 #split text based on "task"
-d_text = dyslexia[dyslexia$Task == "Text",]
-d_words = dyslexia[dyslexia$Task == "Words",]
+d.text = dyslexia[dyslexia$Task == "Text",]
+d.words = dyslexia[dyslexia$Task == "Words",]
 train <- rbind(d_text,d_words)
-d_nonwords = dyslexia[dyslexia$Task == "Non-Words",]
+d.nonwords = dyslexia[dyslexia$Task == "Non-Words",]
+```
 
+```{r models, echo=FALSE}
 #Make a training (model) subset and a testing (prediction) subset
 train <- subset(train, select = c("Mistakes", "Diagnosis","Task"))
 test <- subset(d_nonwords, select = c("Mistakes", "Diagnosis","Task"))
@@ -55,22 +55,21 @@ real$Diagnosis <- as.factor(real$Diagnosis)
 d.Matrix = confusionMatrix(predicted_diagnosis$Prediction, test$Diagnosis)
 
 #multiple regression to test different hypothesis of predictors
-m.Words = glm(Diagnosis ~ SyllableN, data = d.Words,family = "binomial")
+m.words = glm(Diagnosis ~ SyllableN, data = d.words,family = "binomial")
 
 #View coefficients, chisq, p-values, fischer values
-summary(m.Words)
-anova(m.Words,test = "Chisq")
+summary(m.words)
+anova(m.words,test = "Chisq")
 
-m.Text = glm(Diagnosis ~ SyllableN + Duration, data = d.Text,family = "binomial")
-summary(m.Text)
-anova(m.Text, test = "Chisq")
+m.text = glm(Diagnosis ~ SyllableN + Duration, data = d.text,family = "binomial")
+summary(m.text)
+anova(m.text, test = "Chisq")
 
-m.non.Words = glm(Diagnosis ~ SyllableN + SyllablePerVoicedSecond, data = d.non.Words, family = "binomial")
-summary(m.non.Words)
-anova(m.non.Words, test = "Chisq")
+m.nonwords = glm(Diagnosis ~ SyllableN + SyllablePerVoicedSecond, data = d.nonwords, family = "binomial")
+summary(m.nonwords)
+anova(m.nonwords, test = "Chisq")
 
-caret::confusionMatrix(predicted_diagnosis,d.non.Words$Diagnosis,positive="Dyslexia")
-
+confusionMatrix(predicted_diagnosis,d.nonwords$Diagnosis,positive="Dyslexia")
 ```
 
 

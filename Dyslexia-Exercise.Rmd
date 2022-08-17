@@ -11,7 +11,7 @@ setwd("C:\\Users\\danaj\\Documents\\GitHub\\Statistical_Methods_2")
 library(pacman, caret)
 p_load(caret, e1071)
 
-#load data
+#Load Data
 dyslexia <- read.table("dyslexia.txt", header=TRUE)
 ```
 

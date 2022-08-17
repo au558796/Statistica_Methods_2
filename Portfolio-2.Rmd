@@ -1,0 +1,111 @@
+---
+title: "Portfolio 2 assignment"
+author: "Dana Evelyn Jensen"
+date: "27 September 2016"
+output: html_document
+---
+
+Write a short report in R markdown testing whether there is a systematic relationship between Mother and Child MLU in the CHILDES corpus "Sarah". The assignment should as a minimum include:
+
+1) MLU data extracted from mother and child through all Sarah-transcripts
+2) Test for assumptions of normality
+3) Descriptive stats (M and SD) of the two variables  
+4) The results of a correlation analysis
+5) Illustration of the results in a scatter plot 
+
+NB: You don't need to include any Python code in your assignment, only R code.
+
+Optionally, you are welcome to also:
+Expand on the MLU Python script to test for the second hypothesis that vocabulary size (the number of unique words) used by mothers are correlated with children's vocabularies through different ages (i.e. through the transcripts). In Python, you can use the command ```set()``` to get the unique words from a text/transscript. If you choose to also do this analysis, it should be reported in ways similar to the previous one.
+
+Question 1:
+```{r}
+
+#set working directory
+setwd("C:\\Users\\danaj\\Documents\\GitHub\\Statistical_Methods_2")
+
+#load libraries
+library(pacman)
+p_load(pastecs, ggplot2, tidyr)
+
+#read csv file
+data=read.delim("MLU_data.csv", header=TRUE, sep = ",",stringsAsFactors = FALSE)
+
+#clean up data
+data=spread(data,speaker,mlu)
+
+```
+
+Mother and Child MLU data extracted from all transcripts.
+
+Question 2:
+```{r}
+
+#histogram showing child mlu frequency
+ggplot(data,aes(CHI))+
+  geom_histogram(aes(y=..density..),colour="Black",fill="White")+   
+  stat_function(fun=dnorm,args=list(mean=mean(data$CHI,na.rm=TRUE),sd=sd(data$CHI,na.rm=TRUE)),colour="Red",size=1)+   
+  labs(x="MLU",y="Frequency of MLU", title="Child MLU")+
+  theme(legend.position="none")
+
+#qq plot to test normality CHI
+qplot(sample = data$CHI, stat = "qq")+
+  labs(title="Child MLU Normality Assumption")+
+  theme_classic()
+  
+#histogram of mother's mlu frequency
+ggplot(data,aes(MOT))+
+  geom_histogram(aes(y=..density..),colour="Black",fill="White")+   
+  stat_function(fun=dnorm,args=list(mean=mean(data$MOT,na.rm=TRUE),sd=sd(data$MOT,na.rm=TRUE)),colour="Red",size=1)+   
+  labs(x="MLU",y="Frequency of MLU", title="Mother MLU")+
+  theme(legend.position="none")
+
+#qq plot to test normality MOT
+qplot(sample = data$MOT, stat= "qq")+
+  labs(title="Mother MLU Normality Assumption")+
+  theme_classic()
+
+```
+
+To test for the assumption of normality for the Child's MLU, a frequency distribution (histogram) is constructed with a normal distribution line overlapping the data. From this it is easy to see how the data is distributed compared to what would be normally distributed data. Looking at the histogram, it is clear to see from the frequency bars that this data is not normally distributed. The frequency bars do not fall into a healthy bell curve pattern. This is confirmed by observing the corresponding Q-Q plot, where the data is not perfectly aligned in a diagonal line, but rather waves to the sides similiar to a s shape. Based on these observations, it can be assumed that the Child MLU data is non-normally distributed.
+
+Accordingly, the same graphs are constructed for the Mother's MLU data as well. First taking a look at the histogram, it is seen that the data resembles a normally distributed curve more than the Child's MLU data, but still not so accurately. The frequency bars do give a vague indication of a normal slope on either end, but lose this pattern in the middle where the normal line over-estimates the bars' values. Similarly with the Q-Q plot, there is a fairly steady diagonaly line presented, with a break shift around value 0. This indicates data not fully accurate enough to assume normality.
+
+Question 3:
+```{r}
+#calculate descriptive statistics
+round(stat.desc(data$MOT, basic = FALSE, norm=TRUE),3)
+round(stat.desc(data$CHI, basic = FALSE, norm=TRUE),3)
+
+```
+
+Looking at the numeric data for the Mother and Child's MLU can tell a lot about how the data looks. Focusing attention on the Mother's data first, it is observed that the mean and standard deviation are 4.07 and 0.66. This confirms the assumption made in the last section that the data is not normally distributed, otherwise it would have a mean and standard deviation of 0 and 1. This is also re-enforced by the skewness and kurtosis of 0.29 and -0.38. These values also give impressions of non normality.
+
+Likewise, the mean and standard deviation values of the child's MLU data is 2.68 and 0.67, which also are not the properties of normally distributed data. The skewness and kurtosis also reaffirm our assumption of normality, being -0.27 and -1.09. It can be made easier to picture the descriptions of these data from these numeric figures.
+
+Question 4:
+```{r}
+#conduct spearman's correlation test
+cor.test(data$MOT,data$CHI, alternative= "greater", method = "spearman")
+
+#calculate R^2 from rho value
+(0.6509733)^2
+```
+
+Given the assumption that our data is non normal, and that there is more than 30 values in our variables, the best correlation test to execute is Spearman's rho. Ideally, it is hypothesized from this experiment that the greater the Mother's MLU, the greater the Child's MLU, so an alternative hypothesis of "greater" is suggested. The results confirm the alternative hypothesis that there is a positive relationship between Mother's MLU and Child's MLU: r=0.65, R^2= 0.42, p= <.0001. This is indicative that this relationship is unlikely to be the cause of chance. This suggests that there is an effect to the data. No causal relationship is implied.
+
+Question 5:
+```{r}
+#scatter plot comparing mother and child mlu 
+qplot(x=data$MOT,y=data$CHI,  geom="point")+
+  labs(x="Mother MLUs", y="Child MLUs", title = "Mother vs. Child MLUs")+
+  geom_smooth(method=lm, color="Red")+
+  theme_classic()
+  
+```
+
+Some key observations can be exracted from this scatter plot of Mother vs. Child MLUs. The most attractive aspect of the graph is the red line of regression. The steep uphill incline of the line shows a healthy positive relationship between the two variables. Next, when attention is drawn to the confidence intervals, it is observed that these intervals are fairly narrow, indicating that the regression line used is a fairly good model for this data. Now looking at the data values themselves, there is a pattern of the clusters to have a tendency to rise together, suggesting that when one value increases, the other value increases as well. 
+
+Tied altogether in a neat little package, the assumption is made that both the data for the Child and the Mother's MLUs is not normal, which is observed from the corresponding histograms and Q-Q plots. This assumption is confirmed from the descriptive numeric data, where the standard deviations, skewness and kurtosis all indicate non-normality for the data. Additionally, a Spearman correlation analysis is run to affirm the alternative hypothesis of a positive relationship with a high probability that an effect is present, which is finally demonstrated with a scatter plot of the two values defined by a regression line.
+
+                                                                        Dana Jensen

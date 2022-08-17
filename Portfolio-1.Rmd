@@ -1,0 +1,157 @@
+---
+title: "Portfolio assignment 1"
+author: "Dana Evelyn Jensen"
+output: html_document
+---
+
+```{r}
+setwd("C:\\Users\\danaj\\Documents\\GitHub\\Statistical_Methods_2")
+library(pacman)
+p_load(ggplot2)
+
+#Data Missing
+data=read.delim("CogSciPersonality2016.txt" , stringsAsFactors=FALSE)
+
+```
+
+Write a short data mining report on the CogSci Intro Week Personality Test Data in which you answer the following questions in prose, code and graphs:
+
+1) Who can hold their breath longer on average, those with right or left ocular dominance?
+
+```{r}
+#index to only observe specific rows (without "both" as answer (row 44))
+newdata<-data[c(1:43,45:62),]
+
+#bar graph comparing left and right ocular dominance
+plot1<- ggplot(newdata , aes (x = Ocular_dominance , y = Hold_breath, fill=Ocular_dominance)) + 
+  geom_bar (stat = "summary", fun.y = mean) +
+  labs(x= "Ocular Dominance", y = "Hold Breath Time in Seconds", title = "Ocular Dominance vs. Hold Breath Length") +
+  geom_errorbar(stat="summary", fun.data = mean_se) +
+  theme_classic() +
+  geom_errorbar(stat="summary", fun.data=mean_se, width=0.2)
+plot1
+
+#calculate standard deviation
+sd(newdata$Hold_breath)
+
+#calculate mean
+mean(newdata$Hold_breath)
+
+```
+
+As can be observed from the graph, those individuals with left ocular dominance can (on average) hold their breaths longer. Standard deviation is 21.84, and the mean is 49.53 overall.
+
+2) Who like silence – who prefer noise, males or females? 
+
+```{r}
+
+#bar graph comparing males to females concerning volume
+ggplot(data , aes (x = Gender , y = Volume, fill=Gender)) +
+  geom_bar (stat = "summary" , fun.y = mean) +
+  labs (x = "Gender" , y = "Volume" , title = "Gender vs. Volume")+
+  geom_errorbar(stat = "summary" , fun.data = mean_se)+
+  theme_classic()
+
+#calculate mean volume 
+mean(data$Volume)
+
+#calculate standard deviation
+sd(data$Volume)
+
+#calculate the number of people who have volume as zero
+length(data$Gender[data$Volume==0])
+
+#how many are male, how many are female
+data$Gender[data$Volume==0]
+
+```
+
+In terms of who prefers noise, there is a significant difference from females to males. On average, there are more females who prefer noise than males. In terms of who likes silence, there are three males and two females who like complete silence; again suggesting that females prefer noise compared to males. The mean is 24.3, and standard deviation is 17.61.
+
+3) Are the Hold breath data (Hold_breath) normally distributed? Supply visual and numeric support for your judgments   
+
+```{r}
+
+#histogram of Hold Breath data
+ggplot(data,aes(Hold_breath)) +
+  geom_histogram(aes(y=..density..),colour="Black",fill="White", binwidth = 5) +
+  stat_function(fun=dnorm,args=list(mean=mean(data$Hold_breath,na.rm=TRUE),sd=sd(data$Ballon_rt,na.rm=TRUE)),colour="Red",size=1) +
+  labs(x="Time in Seconds",y="Frequency", title= "Hold Breath Time") +
+  theme_classic()
+
+#calculate mean of Hold Breath
+mean(data$Hold_breath)
+
+#calculate standard deviation
+sd(data$Hold_breath)
+
+#summary statistics of data
+summary(data$Hold_breath)
+
+```
+
+For data to be normally distributed, it must have a mean of 0 and a standard deviation of 1. However, the mean and standard deviation for this data set is 49.6 and 21.7, which indeed is nowhere close to 0 and 1. Taking a look at the histogram, it is obvious to see in a glance that the data is not normal (i.e. does not appear to have a normal-even bell curve).There is a slight right kurtosis on the right tail.
+
+4) Are the Balloon reaction time data (Ballon_rt) normally distributed? Supply visual and numeric support for your judgments   
+
+```{r}
+
+#if data can't automatically be read as numeric
+data$Ballon_rt = as.numeric(data$Ballon_rt)
+
+# Plot comparing reaction time 
+plot2<- ggplot(data,aes(Ballon_rt)) +
+  geom_histogram(aes(y=..density..),colour="Black",fill="White", binwidth = 5) +
+  stat_function(fun=dnorm,args=list(mean=mean(data$Ballon_rt,na.rm=TRUE),sd=sd(data$Ballon_rt,na.rm=TRUE)),colour="Red",size=1) +
+  labs(x="Time in Seconds",y="Frequency", title="Balloon Reaction Time") +
+  theme_classic()
+plot2
+
+#summary statistics
+summary(data$Ballon_rt)
+
+#calculate mean
+mean(as.numeric(data$Ballon_rt),na.rm=TRUE)
+
+#calculate standard deviation
+sd(as.numeric(data$Ballon_rt),na.rm=TRUE)
+
+```
+
+As mentioned earlier, the criterium for a normal distribution is a) a mean of 0, and b) a standard deviation of 1. From the summary it can be viewed that the mean is not indeed 0 (it is actually 26.9), and the standard deviation is 25.16. This means the distribution for this data is not normal. Likewise, looking at the graphical representation, the characteristics of non-normality are easily visualized. The data does not seem to be evenly spread with a perfect curve.There appears to be a positive skew with a very long right tail.
+
+5) Shoe size could tell us something about general body size, which could also be connected to your ability to hold your breath. In other words we predict that there is a positive relation between shoe size and the time cogsci students can hold their breath. Plot the two sets of data against each other (using a scatter plot). Add a regression line depicting the linear relation and describe what you find  
+
+```{r}
+
+#scatter plot comparing Shoe Size to Hold Breath
+plot3<- ggplot(data, aes (x = Shoe_size, y = Hold_breath), fill=) +
+  geom_point(color="Black") +
+  labs (x = "European Shoe Size", y = "Time in Seconds", 
+        title = "Shoe Size Vs. Hold Breath Length") +
+  theme_classic() +
+  geom_smooth(method = lm, color="Red")
+plot3
+
+#correlation test: Kendall b/c not normally distributed
+cor.test(data$Shoe_size, data$Hold_breath, alternative = "greater", method = "kendall")
+
+```
+
+As observed from the scatter plot, there is a slight positive correlation between people's shoe size and how long they can hold their breath. The confidence intervals are fairly small, indicating the regression line is a good model of the data. Running a correlation test using Kendall's method confirms this relationship by disclosing tau = 0.27 respectively. No causality is implied.
+
+6) (Optional!) Males and females have different body sizes. Use grouping in your plot to distinguish the relationship between shoe size and holding breath for males and females 
+
+```{r}
+
+#comparing male and female Shoe Size based on Hold Breath
+plot4<- ggplot(data, aes(Shoe_size,Hold_breath, colour = Gender)) +
+  geom_point() +
+  geom_smooth(method='lm') +
+  labs(title = "relation between shoe size and holding breath divided by gender",
+       x = "Shoe size", "Holding breath (secs)")
+plot4
+
+```
+
+For the females, it is obvious to see a positive correlation between one's shoe size and how long one can hold their breath. As for the males, it is not so obvious to see, but since the males shoe sizes are larger than females on average, and holding breath is longer than females, then it can be decucted that there is a relationship between shoe size and holding breath for males as well. No causal direction is implied.

@@ -5,10 +5,6 @@ date: "February 17, 2017"
 output: github_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
 ```{r}
 # setting working directory and loading data, packages etc.
 setwd("C:\\Users\\danaj\\Documents\\GitHub\\Statistical_Methods_2")

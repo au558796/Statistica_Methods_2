@@ -11,6 +11,7 @@ setwd("C:\\Users\\danaj\\Documents\\GitHub\\Statistical_Methods_2")
 library(pacman)
 p_load(psych, ggplot2)
 
+#Load Data
 parametres = read.table("parametres.txt", header = FALSE)
 fmri<-as.matrix(read.csv("aud_fmri_data37.csv", header = FALSE))
 fmri2<-ts(fmri)

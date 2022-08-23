@@ -1,1 +1,1 @@
-# Statistica_Methods_2
+# Statistical_Methods_2

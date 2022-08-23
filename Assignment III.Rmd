@@ -5,16 +5,13 @@ date: "February 17, 2017"
 output: github_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
 ```{r}
 # setting working directory and loading data, packages etc.
 setwd("C:\\Users\\danaj\\Documents\\GitHub\\Statistical_Methods_2")
 library(pacman)
 p_load(psych, ggplot2)
 
+#Load Data
 parametres = read.table("parametres.txt", header = FALSE)
 fmri<-as.matrix(read.csv("aud_fmri_data37.csv", header = FALSE))
 fmri2<-ts(fmri)

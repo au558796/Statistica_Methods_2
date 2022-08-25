@@ -4,13 +4,15 @@ author: "Dana Evelyn Jensen"
 date: "`r Sys.Date()`"
 output: pdf_document
 ---
-
-```{r setup, include=FALSE, echo=FALSE}
-setwd("C:\\Users\\danaj\\Documents\\GitHub\\Statistical_Methods_2")
+```{r "setup", include=FALSE, echo=FALSE}
+#setwd("C:\\Users\\danaj\\Documents\\GitHub\\Statistical_Methods_2\\data")
 require("knitr")
 opts_knit$set(root.dir = "~/data")
-data = read.csv("wordbankdata.csv", sep = ',')
 
+```
+
+```{r}
+data = read.csv("wordbankdata.csv", sep = ',')
 ```
 
 ```{r}

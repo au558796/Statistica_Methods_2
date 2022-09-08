@@ -14,6 +14,7 @@ p_load(Hmisc, ggm, polycor, Rcmdr, ggplot2, boot)
 data=read.delim("CogSciPersonality2016.txt")
 liarData = read.delim(file.choose(), header = TRUE)
 catData = read.csv("pbcorr.cvs", header = TRUE)
+
 ```
 
 ```{r cars}

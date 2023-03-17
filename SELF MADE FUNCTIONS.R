@@ -1,2 +1,0 @@
-# sELF-MADE FUNCTIONS
-
